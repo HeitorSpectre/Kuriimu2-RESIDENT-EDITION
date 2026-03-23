@@ -255,6 +255,7 @@ namespace Kuriimu2.ImGui.Forms.Formats
         {
             _formatBox.Items.Clear();
             _formatBox.SelectedItem = null;
+            _formatBox.Enabled = false;
 
             if (img == null)
                 return;
@@ -274,6 +275,7 @@ namespace Kuriimu2.ImGui.Forms.Formats
                     _formatBox.Items.Add(new DropDownItem<int>(indexEnc.Key, indexEnc.Value.IndexEncoding.FormatName));
 
             _formatBox.SelectedItem = _formatBox.Items.FirstOrDefault(x => x.Content == img.ImageInfo.ImageFormat);
+            _formatBox.Enabled = !img.IsImageLocked;
         }
 
         private void SetPaletteFormats(IImageFile img)

@@ -17,14 +17,14 @@ namespace Kuriimu2.ImGui.Resources
             {
                 [ImGuiColMax_ + 1] = new Rgba32(0x49, 0xe7, 0x9a),
                 [ImGuiColMax_ + 2] = new Rgba32(0xcf, 0x66, 0x79),
-                [ImGuiColMax_ + 3] = Color.ForestGreen,
+                [ImGuiColMax_ + 3] = new Rgba32(0xc8, 0x6a, 0x6a),
                 [ImGuiColMax_ + 4] = new Rgba32(0xFF, 0xA5, 0x00)
             },
             [Theme.Light] = new Dictionary<uint, Color>
             {
                 [ImGuiColMax_ + 1] = Color.ForestGreen,
                 [ImGuiColMax_ + 2] = Color.DarkRed,
-                [ImGuiColMax_ + 3] = Color.ForestGreen,
+                [ImGuiColMax_ + 3] = new Rgba32(0xc8, 0x6a, 0x6a),
                 [ImGuiColMax_ + 4] = new Rgba32(0xFF, 0xA5, 0x00)
             }
         };

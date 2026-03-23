@@ -19,6 +19,8 @@ namespace plugin_mt_framework.Images
         private MobileMtTexHeader _mobileHeader;
 
         private byte[] _unkRegion;
+        private byte[] _ps3FileData;
+        private int _ps3TextureOffset;
         private bool _isGpuDependent;
 
         public IList<ImageFileInfo> Load(Stream input, MtTexPlatform platform)
@@ -161,46 +163,45 @@ namespace plugin_mt_framework.Images
 
         private IList<ImageFileInfo> LoadPs3(BinaryReaderX br)
         {
-            var bitDepth = MtTexSupport.Ps3Formats[_header.format].BitDepth;
-            var colorsPerValue = MtTexSupport.Ps3Formats[_header.format].ColorsPerValue;
+            _ps3FileData = ReadAllBytes(br.BaseStream);
 
-            // Skip mip offsets
-            var mipOffsets = ReadIntegers(br, _header.imageData.mipCount);
+            using var ps3Stream = new MemoryStream(_ps3FileData, false);
+            using var ps3Reader = new BinaryReaderX(ps3Stream, ByteOrder.BigEndian);
 
-            // Read images
-            var imageInfos = new List<ImageFileInfo>();
-            for (var i = 0; i < _header.imgCount; i++)
+            var imageSize = ReadPs3ImageSize(ps3Reader);
+            var imageFormat = ReadPs3ImageFormat(ps3Reader);
+            _ps3TextureOffset = ReadPs3TextureOffset(ps3Reader);
+
+            if (!MtTexSupport.Ps3Formats.TryGetValue(imageFormat, out var encoding))
+                throw new InvalidOperationException($"Unsupported PS3 MT TEX format 0x{imageFormat:X2}.");
+
+            if (imageSize.Width <= 0 || imageSize.Height <= 0)
+                throw new InvalidOperationException("Invalid PS3 MT TEX dimensions.");
+
+            if (_ps3TextureOffset < 0 || _ps3TextureOffset >= _ps3FileData.Length)
+                throw new InvalidOperationException("Invalid PS3 MT TEX texture offset.");
+
+            var dataSize = imageSize.Width * imageSize.Height * encoding.BitDepth / 8;
+            var remainingData = _ps3FileData.Length - _ps3TextureOffset;
+            if (remainingData < dataSize)
+                throw new InvalidOperationException("PS3 MT TEX data is smaller than expected.");
+
+            var imageData = new byte[dataSize];
+            Array.Copy(_ps3FileData, _ps3TextureOffset, imageData, 0, dataSize);
+
+            var imageInfo = new ImageFileInfo
             {
-                // Read mips
-                var mipData = new List<byte[]>();
-                for (var m = 0; m < _header.imageData.mipCount; m++)
-                {
-                    var mipSize = (_header.imageData.width >> m) * (_header.imageData.height >> m) * bitDepth / 8;
+                BitDepth = encoding.BitDepth,
+                ImageData = imageData,
+                ImageFormat = imageFormat,
+                ImageSize = imageSize
+            };
 
-                    br.BaseStream.Position = mipOffsets[i * _header.imageData.mipCount + m];
-                    mipData.Add(br.ReadBytes(mipSize));
-                }
+            // PS3 BC textures still need block remapping in the viewer path.
+            if (encoding.ColorsPerValue > 1)
+                imageInfo.RemapPixels = context => new BcSwizzle(context);
 
-                // Create image info
-                var imageInfo = new ImageFileInfo
-                {
-                    BitDepth = MtTexSupport.GetBitDepth(_platform, _header.format),
-                    ImageData = mipData[0],
-                    ImageFormat = _header.format,
-                    ImageSize = new Size(_header.imageData.width, _header.imageData.height)
-                };
-
-                if (_header.imageData.mipCount > 1)
-                    imageInfo.MipMapData = mipData.Skip(1).ToArray();
-
-                // TODO: Remove block swizzle with pre-swizzle implementation in Kanvas
-                if (colorsPerValue > 1)
-                    imageInfo.RemapPixels = context => new BcSwizzle(context);
-
-                imageInfos.Add(imageInfo);
-            }
-
-            return imageInfos;
+            return [imageInfo];
         }
 
         private ImageFileInfo LoadSwitch(BinaryReaderX br)
@@ -448,6 +449,62 @@ namespace plugin_mt_framework.Images
             return result;
         }
 
+        private Size ReadPs3ImageSize(BinaryReaderX reader)
+        {
+            var position = reader.BaseStream.Position;
+
+            reader.BaseStream.Position = 0x8;
+            var packedSize = (reader.ReadByte() << 16) | (reader.ReadByte() << 8) | reader.ReadByte();
+
+            reader.BaseStream.Position = position;
+
+            var width = (packedSize & 0xFFF) * 4;
+            var height = ((packedSize >> 12) & 0xFFF) * 2;
+            return new Size(width, height);
+        }
+
+        private byte ReadPs3ImageFormat(BinaryReaderX reader)
+        {
+            var position = reader.BaseStream.Position;
+
+            reader.BaseStream.Position = 0xE;
+            var format = reader.ReadByte();
+
+            reader.BaseStream.Position = position;
+            return format;
+        }
+
+        private int ReadPs3TextureOffset(BinaryReaderX reader)
+        {
+            var position = reader.BaseStream.Position;
+
+            reader.BaseStream.Position = 0x10;
+            var textureOffset = reader.ReadInt32();
+
+            reader.BaseStream.Position = position;
+            return textureOffset;
+        }
+
+        private byte[] ReadAllBytes(Stream stream)
+        {
+            var position = stream.Position;
+            stream.Position = 0;
+
+            var data = new byte[stream.Length];
+            var totalRead = 0;
+            while (totalRead < data.Length)
+            {
+                var bytesRead = stream.Read(data, totalRead, data.Length - totalRead);
+                if (bytesRead <= 0)
+                    break;
+
+                totalRead += bytesRead;
+            }
+
+            stream.Position = position;
+            return data;
+        }
+
         #endregion
 
         #region Save
@@ -509,50 +566,19 @@ namespace plugin_mt_framework.Images
 
         private void SavePs3(BinaryWriterX bw, IList<ImageFileInfo> imageInfos)
         {
-            // Check for image information being equal
-            if (imageInfos.Select(x => x.ImageFormat).Distinct().Count() > 1)
-                throw new InvalidOperationException("All images have to be in the same image encoding.");
-            if (imageInfos.Select(x => x.ImageSize).Distinct().Count() > 1)
-                throw new InvalidOperationException("All images have to have the same dimensions.");
+            if (_ps3FileData == null || _ps3FileData.Length == 0)
+                throw new InvalidOperationException("Original PS3 MT TEX data is not available for saving.");
+            if (imageInfos.Count != 1)
+                throw new InvalidOperationException("PS3 MT TEX only supports a single image.");
 
-            bw.BaseStream.Position = HeaderSize_;
+            var imageInfo = imageInfos[0];
+            var availableSize = _ps3FileData.Length - _ps3TextureOffset;
+            if (imageInfo.ImageData.Length > availableSize)
+                throw new InvalidOperationException("The new PS3 MT TEX data does not fit in the original file.");
 
-            // Write mip offsets
-            var mipPosition = HeaderSize_ + (imageInfos.Count + imageInfos.Sum(x => x.MipMapData?.Count ?? 0)) * 4;
-            foreach (var imageInfo in imageInfos)
-            {
-                bw.Write(mipPosition);
-                mipPosition += imageInfo.ImageData.Length;
-
-                if ((imageInfo.MipMapData?.Count ?? 0) <= 0)
-                    continue;
-
-                foreach (var mipData in imageInfo.MipMapData!)
-                {
-                    bw.Write(mipPosition);
-                    mipPosition += mipData.Length;
-                }
-            }
-
-            // Write image data
-            foreach (var imageInfo in imageInfos)
-            {
-                bw.Write(imageInfo.ImageData);
-
-                if (imageInfo.MipMapData is not null)
-                    foreach (var mipData in imageInfo.MipMapData)
-                        bw.Write(mipData);
-            }
-
-            // Update header
-            _header.format = (byte)imageInfos[0].ImageFormat;
-            _header.imageData.width = (short)imageInfos[0].ImageSize.Width;
-            _header.imageData.height = (short)imageInfos[0].ImageSize.Height;
-            _header.imageData.mipCount = (byte)((imageInfos[0].MipMapData?.Count ?? 0) + 1);
-
-            // Write header
-            bw.BaseStream.Position = 0;
-            WriteHeader(_header, bw);
+            bw.Write(_ps3FileData);
+            bw.BaseStream.Position = _ps3TextureOffset;
+            bw.Write(imageInfo.ImageData);
         }
 
         private void SaveSwitch(BinaryWriterX bw, ImageFileInfo imageInfo)

@@ -8,6 +8,7 @@ namespace Kuriimu2.ImGui.Resources
         private const string TypeExtensionLastDirectoryName_ = "TypeExtensionLastDirectory";
         private const string BatchInputDirectoryName_ = "BatchInputDirectory";
         private const string BatchOutputDirectoryName_ = "BatchOutputDirectory";
+        private const string BatchArcPluginIdName_ = "BatchArcPluginId";
         private const string SequenceSearchDirectoryName_ = "SequenceSearchDirectory";
         private const string ThumbnailWidthName_ = "ThumbnailWidth";
         private const string ThumbnailHeightName_ = "ThumbnailHeight";
@@ -38,6 +39,12 @@ namespace Kuriimu2.ImGui.Resources
         {
             get => SettingsProvider.Instance.Get(BatchOutputDirectoryName_, string.Empty);
             set => SettingsProvider.Instance.Set(BatchOutputDirectoryName_, value);
+        }
+
+        public static string BatchArcPluginId
+        {
+            get => SettingsProvider.Instance.Get(BatchArcPluginIdName_, string.Empty);
+            set => SettingsProvider.Instance.Set(BatchArcPluginIdName_, value);
         }
 
         public static string SequenceSearchDirectory

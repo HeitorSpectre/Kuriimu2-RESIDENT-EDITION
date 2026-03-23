@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Numerics;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -68,6 +69,7 @@ namespace Kuriimu2.ImGui.Forms
 
         private const string ManifestUrl_ = "https://raw.githubusercontent.com/FanTranslatorsInternational/Kuriimu2-ImGuiForms-Update/main/{0}/manifest.json";
         private const string ApplicationType_ = "ImGui";
+        private static readonly Guid MtTexPluginId_ = Guid.Parse("9e85ef16-7157-40ba-846a-b5a17148775f");
 
         private const string FormTitle_ = "Kuriimu2 - RESIDENT EVIL EDITION {0}-{1}";
         private const string FormTitlePlugin_ = "Kuriimu2 - RESIDENT EVIL EDITION {0}-{1} - {2} - {3} - {4}";
@@ -76,6 +78,8 @@ namespace Kuriimu2.ImGui.Forms
 
         public MainForm()
         {
+            LocalizationResources.Instance.ChangeLocale(SettingsResources.Locale);
+
             InitializeComponent();
 
             #region Initialization
@@ -102,6 +106,7 @@ namespace Kuriimu2.ImGui.Forms
             _changeThemeMenu.SelectedItemChanged += _changeThemeMenu_SelectedItemChanged;
 
             _openButton.Clicked += _openButton_Clicked;
+            _openPs3TexButton.Clicked += _openPs3TexButton_Clicked;
             _openWithButton.Clicked += _openWithButton_Clicked;
             _saveAllButton.Clicked += _saveAllButton_Clicked;
 
@@ -109,6 +114,8 @@ namespace Kuriimu2.ImGui.Forms
             _compressionsButton.Clicked += _compressionsButton_Clicked;
             _batchExtractButton.Clicked += _batchExtractButton_Clicked;
             _batchInjectButton.Clicked += _batchInjectButton_Clicked;
+            _batchTexExtractButton.Clicked += _batchTexExtractButton_Clicked;
+            _batchTexInjectButton.Clicked += _batchTexInjectButton_Clicked;
             _imageTranscoderButton.Clicked += _imageTranscoderButton_Clicked;
             _rawImageViewerButton.Clicked += _rawImageViewerButton_Clicked;
 
@@ -140,6 +147,7 @@ namespace Kuriimu2.ImGui.Forms
 
             // Set stored theme
             Style.ChangeTheme(SettingsResources.Theme);
+            ApplyThemeAccentColors();
 
             // Set stored localization
             LocalizationResources.Instance.ChangeLocale(SettingsResources.Locale);
@@ -208,9 +216,25 @@ namespace Kuriimu2.ImGui.Forms
         {
             await ShowBatchArcDialog(BatchArcOperation.Reimport);
         }
+
+        private async void _batchTexExtractButton_Clicked(object sender, EventArgs e)
+        {
+            await ShowBatchTexDialog(BatchTexOperation.Extract);
+        }
+
+        private async void _batchTexInjectButton_Clicked(object sender, EventArgs e)
+        {
+            await ShowBatchTexDialog(BatchTexOperation.Reimport);
+        }
+
         private async void _openButton_Clicked(object sender, EventArgs e)
         {
             await OpenPhysicalFile(false);
+        }
+
+        private async void _openPs3TexButton_Clicked(object sender, EventArgs e)
+        {
+            await OpenPhysicalFileAsPs3Tex();
         }
 
         private async void _openWithButton_Clicked(object sender, EventArgs e)
@@ -249,6 +273,7 @@ namespace Kuriimu2.ImGui.Forms
             SettingsResources.Theme = theme;
 
             Style.ChangeTheme(theme);
+            ApplyThemeAccentColors();
 
             // Update colors manually
             _progressBar.ProgressColor = ColorResources.Progress;
@@ -376,6 +401,56 @@ namespace Kuriimu2.ImGui.Forms
             };
         }
 
+        private static void ApplyThemeAccentColors()
+        {
+            var accent = new Vector4(0.74f, 0.38f, 0.40f, 1.00f);
+            var accentHovered = new Vector4(0.80f, 0.46f, 0.48f, 1.00f);
+            var accentActive = new Vector4(0.66f, 0.30f, 0.33f, 1.00f);
+            var accentSubtle = new Vector4(0.52f, 0.22f, 0.24f, 0.85f);
+            var accentBackground = new Vector4(0.27f, 0.12f, 0.14f, 1.00f);
+            var accentBackgroundSoft = new Vector4(0.33f, 0.16f, 0.18f, 1.00f);
+            var accentBorder = new Vector4(0.58f, 0.29f, 0.31f, 0.90f);
+
+            var style = ImGuiNET.ImGui.GetStyle();
+
+            style.Colors[(int) ImGuiCol.CheckMark] = accent;
+            style.Colors[(int) ImGuiCol.FrameBg] = accentBackground;
+            style.Colors[(int) ImGuiCol.FrameBgHovered] = accentBackgroundSoft;
+            style.Colors[(int) ImGuiCol.FrameBgActive] = accentSubtle;
+            style.Colors[(int) ImGuiCol.SliderGrab] = accent;
+            style.Colors[(int) ImGuiCol.SliderGrabActive] = accentActive;
+            style.Colors[(int) ImGuiCol.Button] = accentSubtle;
+            style.Colors[(int) ImGuiCol.ButtonHovered] = accentHovered;
+            style.Colors[(int) ImGuiCol.ButtonActive] = accentActive;
+            style.Colors[(int) ImGuiCol.TitleBg] = accentBackground;
+            style.Colors[(int) ImGuiCol.TitleBgActive] = accentActive;
+            style.Colors[(int) ImGuiCol.TitleBgCollapsed] = accentBackground;
+            style.Colors[(int) ImGuiCol.MenuBarBg] = accentBackground;
+            style.Colors[(int) ImGuiCol.Border] = accentBorder;
+            style.Colors[(int) ImGuiCol.Header] = accentSubtle;
+            style.Colors[(int) ImGuiCol.HeaderHovered] = accentHovered;
+            style.Colors[(int) ImGuiCol.HeaderActive] = accentActive;
+            style.Colors[(int) ImGuiCol.Separator] = accentSubtle;
+            style.Colors[(int) ImGuiCol.SeparatorHovered] = accentHovered;
+            style.Colors[(int) ImGuiCol.SeparatorActive] = accentActive;
+            style.Colors[(int) ImGuiCol.ScrollbarGrab] = accentSubtle;
+            style.Colors[(int) ImGuiCol.ScrollbarGrabHovered] = accentHovered;
+            style.Colors[(int) ImGuiCol.ScrollbarGrabActive] = accentActive;
+            style.Colors[(int) ImGuiCol.ResizeGrip] = accentSubtle;
+            style.Colors[(int) ImGuiCol.ResizeGripHovered] = accentHovered;
+            style.Colors[(int) ImGuiCol.ResizeGripActive] = accentActive;
+            style.Colors[(int) ImGuiCol.Tab] = accentSubtle;
+            style.Colors[(int) ImGuiCol.TabHovered] = accentHovered;
+            style.Colors[(int) ImGuiCol.TabSelected] = accent;
+            style.Colors[(int) ImGuiCol.TabSelectedOverline] = accentHovered;
+            style.Colors[(int) ImGuiCol.TabDimmed] = accentBackground;
+            style.Colors[(int) ImGuiCol.TabDimmedSelected] = accentSubtle;
+            style.Colors[(int) ImGuiCol.TabDimmedSelectedOverline] = accent;
+            style.Colors[(int) ImGuiCol.DockingPreview] = new Vector4(accent.X, accent.Y, accent.Z, 0.65f);
+            style.Colors[(int) ImGuiCol.TextSelectedBg] = new Vector4(accent.X, accent.Y, accent.Z, 0.35f);
+            style.Colors[(int) ImGuiCol.TextLink] = accentHovered;
+        }
+
         #endregion
 
         #region File methods
@@ -395,7 +470,20 @@ namespace Kuriimu2.ImGui.Forms
             await OpenPhysicalFiles([fileToOpen], manualIdentification);
         }
 
-        private async Task OpenPhysicalFiles(IList<string> filesToOpen, bool manualIdentification)
+        private async Task OpenPhysicalFileAsPs3Tex()
+        {
+            var fileToOpen = await SelectFile("MT TEX", "tex");
+
+            if (fileToOpen == null)
+            {
+                ReportStatus(StatusKind.Failure, LocalizationResources.StatusFileSelectNone);
+                return;
+            }
+
+            await OpenPhysicalFiles([fileToOpen], false, MtTexPluginId_);
+        }
+
+        private async Task OpenPhysicalFiles(IList<string> filesToOpen, bool manualIdentification, Guid? forcedPluginId = null)
         {
             foreach (string fileToOpen in filesToOpen)
             {
@@ -408,7 +496,7 @@ namespace Kuriimu2.ImGui.Forms
                 }
 
                 var loadAction = new Func<IFilePlugin, Task<LoadResult>>(plugin =>
-                    _fileManager.LoadFile(fileToOpen, plugin?.PluginId ?? Guid.Empty));
+                    _fileManager.LoadFile(fileToOpen, forcedPluginId ?? plugin?.PluginId ?? Guid.Empty));
                 Color tabColor = Color.FromArgb(_rand.Next(256), _rand.Next(256), _rand.Next(256));
 
                 await OpenFile(fileToOpen, manualIdentification, loadAction, tabColor);
@@ -783,6 +871,12 @@ namespace Kuriimu2.ImGui.Forms
             await batchArcDialog.ShowAsync();
         }
 
+        private async Task ShowBatchTexDialog(BatchTexOperation operation)
+        {
+            var batchTexDialog = new BatchTexDialog(operation, _fileManager, _logger);
+            await batchTexDialog.ShowAsync();
+        }
+
         private async Task ShowImageTranscoderDialog()
         {
             var imageTranscoderDialog = new ImageTranscoderDialog();
@@ -965,13 +1059,20 @@ namespace Kuriimu2.ImGui.Forms
             return await sfd.ShowAsync() == DialogResult.Ok ? sfd.Files[0] : null;
         }
 
-        private async Task<string> SelectFile()
+        private async Task<string> SelectFile(string filterName = null, params string[] filterExtensions)
         {
             var ofd = new WindowsOpenFileDialog { InitialDirectory = SettingsResources.LastDirectory };
 
             // Set file filters
-            foreach (var filter in GetFileFilters(_pluginManager).OrderBy(x => $"{x.Name}"))
-                ofd.Filters.Add(filter);
+            if (filterExtensions != null && filterExtensions.Length > 0)
+            {
+                ofd.Filters.Add(new FileFilter(filterName ?? LocalizationResources.FilterAll, filterExtensions));
+            }
+            else
+            {
+                foreach (var filter in GetFileFilters(_pluginManager).OrderBy(x => $"{x.Name}"))
+                    ofd.Filters.Add(filter);
+            }
 
             // Show dialog and wait for result
             var result = await ofd.ShowAsync();

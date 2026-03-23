@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ImGui.Forms.Controls;
 using ImGui.Forms.Controls.Layouts;
+using ImGui.Forms.Controls.Text;
 using ImGui.Forms.Controls.Text.Editor;
 using ImGui.Forms.Modals;
 using ImGui.Forms.Modals.IO;
@@ -11,6 +12,7 @@ using ImGui.Forms.Models;
 using Konnect.Contract.DataClasses.FileSystem;
 using Konnect.Contract.DataClasses.Management.Files;
 using Konnect.Contract.Enums.Management.Files;
+using Konnect.Contract.Enums.Plugin.File;
 using Konnect.Contract.FileSystem;
 using Konnect.Contract.Management.Files;
 using Konnect.Contract.Management.Plugin;
@@ -21,6 +23,7 @@ using Konnect.FileSystem;
 using Konnect.Management.Streams;
 using Kuriimu2.ImGui.Resources;
 using Serilog;
+using Veldrid;
 
 namespace Kuriimu2.ImGui.Forms.Dialogs
 {
@@ -32,6 +35,8 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
 
     partial class BatchArcDialog : Modal
     {
+        private const string DefaultMtArcPluginName_ = "MT ARC";
+
         private readonly BatchArcOperation _operation;
         private readonly IFileManager _fileManager;
         private readonly ILogger _logger;
@@ -55,7 +60,7 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
             _fileManager = fileManager;
             _logger = logger;
             _arcPlugins = pluginManager.GetPlugins<IFilePlugin>()
-                .Where(x => x.FileExtensions?.Any(ext => string.Equals(ext, "*.arc", StringComparison.OrdinalIgnoreCase)) ?? false)
+                .Where(x => x.PluginType == PluginType.Archive)
                 .OrderBy(x => x.Metadata?.Name ?? x.GetType().Name)
                 .ToArray();
 
@@ -64,7 +69,7 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
             _inputFolderBtn.Clicked += _inputFolderBtn_Clicked;
             _outputFolderBtn.Clicked += _outputFolderBtn_Clicked;
             _executeBtn.Clicked += _executeBtn_Clicked;
-            _pluginComboBox.SelectedItemChanged += (_, _) => UpdateFormInternal();
+            _pluginComboBox.SelectedItemChanged += _pluginComboBox_SelectedItemChanged;
 
             UpdateFormInternal();
         }
@@ -77,7 +82,7 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
                 var pluginName = plugin.Metadata?.Name ?? plugin.GetType().Name;
                 _pluginComboBox.Items.Add(new DropDownItem<IFilePlugin>(plugin, pluginName));
             }
-            _pluginComboBox.SelectedItem = _pluginComboBox.Items.FirstOrDefault();
+            _pluginComboBox.SelectedItem = GetInitialPluginSelection();
 
             _inputTextBox = new TextBox { IsReadOnly = true, Placeholder = LocalizationResources.BatchArcInputPlaceholder };
             _outputTextBox = new TextBox { IsReadOnly = true, Placeholder = LocalizationResources.BatchArcOutputPlaceholder };
@@ -124,6 +129,28 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
             Content = _mainLayout;
         }
 
+        private DropDownItem<IFilePlugin>? GetInitialPluginSelection()
+        {
+            var savedPluginId = SettingsResources.BatchArcPluginId;
+            if (Guid.TryParse(savedPluginId, out var pluginId))
+            {
+                var savedItem = _pluginComboBox.Items.FirstOrDefault(x => x.Content.PluginId == pluginId);
+                if (savedItem is not null)
+                    return savedItem;
+            }
+
+            var mtArcItem = _pluginComboBox.Items
+                .FirstOrDefault(x => string.Equals(x.Name, DefaultMtArcPluginName_, StringComparison.OrdinalIgnoreCase) ||
+                                     string.Equals(x.Content.Metadata?.Name, DefaultMtArcPluginName_, StringComparison.OrdinalIgnoreCase));
+            return mtArcItem ?? _pluginComboBox.Items.FirstOrDefault();
+        }
+
+        private void _pluginComboBox_SelectedItemChanged(object? sender, EventArgs e)
+        {
+            SettingsResources.BatchArcPluginId = _pluginComboBox.SelectedItem?.Content.PluginId.ToString("D") ?? string.Empty;
+            UpdateFormInternal();
+        }
+
         private async void _executeBtn_Clicked(object? sender, EventArgs e)
         {
             _executeBtn.Enabled = false;
@@ -153,7 +180,16 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
 
         private void UpdateFormInternal()
         {
-            _executeBtn.Enabled = _pluginComboBox.SelectedItem is not null && !string.IsNullOrWhiteSpace(_inputTextBox.Text) && !string.IsNullOrWhiteSpace(_outputTextBox.Text);
+            _executeBtn.Enabled = !string.IsNullOrWhiteSpace(_inputTextBox.Text) &&
+                                  Directory.Exists(_inputTextBox.Text);
+        }
+
+        private string GetTargetRootPath()
+        {
+            if (!string.IsNullOrWhiteSpace(_outputTextBox.Text) && Directory.Exists(_outputTextBox.Text))
+                return _outputTextBox.Text;
+
+            return _inputTextBox.Text;
         }
 
         private async Task<string?> SelectFolder()
@@ -174,28 +210,27 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
 
             var searchOptions = _subDirCheckBox.Checked ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
             var arcFiles = Directory.EnumerateFiles(_inputTextBox.Text, "*.arc", searchOptions).OrderBy(x => x).ToArray();
+            var targetRootPath = GetTargetRootPath();
             _progress.Maximum = Math.Max(arcFiles.Length, 1);
 
             foreach (var arcFile in arcFiles)
-                ProcessFile(arcFile);
+                ProcessFile(arcFile, targetRootPath);
 
             if (arcFiles.Length == 0)
                 AppendLog(LocalizationResources.BatchArcLogNoFiles);
         }
 
-        private void ProcessFile(string arcFile)
+        private void ProcessFile(string arcFile, string targetRootPath)
         {
             var relativePath = Path.GetRelativePath(_inputTextBox.Text, arcFile);
             AppendLog(LocalizationResources.BatchArcLogProcess(relativePath));
 
             var plugin = _pluginComboBox.SelectedItem?.Content;
-            if (plugin is null)
-                return;
 
             try
             {
                 var sourceFs = FileSystemFactory.CreateSubFileSystem(_inputTextBox.Text, new StreamManager());
-                var targetFs = FileSystemFactory.CreateSubFileSystem(_outputTextBox.Text, new StreamManager());
+                var targetFs = FileSystemFactory.CreateSubFileSystem(targetRootPath, new StreamManager());
                 var filePath = sourceFs.ConvertPathFromInternal(arcFile).ToRelative();
 
                 if (_operation == BatchArcOperation.Extract)
@@ -214,9 +249,11 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
             }
         }
 
-        private async Task ExtractArchive(IFileSystem sourceFileSystem, IFileSystem destinationFileSystem, UPath filePath, IFilePlugin plugin)
+        private async Task ExtractArchive(IFileSystem sourceFileSystem, IFileSystem destinationFileSystem, UPath filePath, IFilePlugin? plugin)
         {
-            var loadedFile = await _fileManager.LoadFile(sourceFileSystem, filePath, plugin.PluginId);
+            var loadedFile = plugin is null
+                ? await _fileManager.LoadFile(sourceFileSystem, filePath)
+                : await _fileManager.LoadFile(sourceFileSystem, filePath, plugin.PluginId);
             if (loadedFile.Status != LoadStatus.Successful || loadedFile.LoadedFileState?.PluginState is not IArchiveFilePluginState archiveState)
                 return;
 
@@ -242,11 +279,15 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
             }
         }
 
-        private async Task ReimportArchive(IFileSystem sourceFileSystem, IFileSystem replacementFileSystem, UPath filePath, IFilePlugin plugin)
+        private async Task ReimportArchive(IFileSystem sourceFileSystem, IFileSystem replacementFileSystem, UPath filePath, IFilePlugin? plugin)
         {
-            var loadedFile = await _fileManager.LoadFile(sourceFileSystem, filePath, plugin.PluginId);
+            var loadedFile = plugin is null
+                ? await _fileManager.LoadFile(sourceFileSystem, filePath)
+                : await _fileManager.LoadFile(sourceFileSystem, filePath, plugin.PluginId);
             if (loadedFile.Status != LoadStatus.Successful || loadedFile.LoadedFileState?.PluginState is not IArchiveFilePluginState archiveState)
                 return;
+
+            var openedReplacementStreams = new System.Collections.Generic.List<Stream>();
 
             try
             {
@@ -260,14 +301,20 @@ namespace Kuriimu2.ImGui.Forms.Dialogs
                     if (!replacementFileSystem.FileExists(replacementPath))
                         continue;
 
-                    using var input = replacementFileSystem.OpenFile(replacementPath);
+                    var input = replacementFileSystem.OpenFile(replacementPath);
+                    openedReplacementStreams.Add(input);
                     afi.SetFileData(input);
                 }
 
-                await _fileManager.SaveFile(loadedFile.LoadedFileState);
+                var saveResult = await _fileManager.SaveFile(loadedFile.LoadedFileState);
+                if (!saveResult.IsSuccessful)
+                    AppendLog($"Failed to save {filePath.FullName}: {saveResult.Reason} {saveResult.Exception?.Message}".Trim());
             }
             finally
             {
+                foreach (var openedReplacementStream in openedReplacementStreams)
+                    openedReplacementStream.Dispose();
+
                 _fileManager.Close(loadedFile.LoadedFileState!);
             }
         }

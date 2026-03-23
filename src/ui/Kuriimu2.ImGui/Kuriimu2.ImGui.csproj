@@ -7,6 +7,7 @@
     <AppendTargetFrameworkToOutputPath>true</AppendTargetFrameworkToOutputPath>
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <ApplicationIcon>Resources\Images\kuriimu2.ico</ApplicationIcon>
+    <UseBinaryProjectReferences Condition="'$(UseBinaryProjectReferences)'==''">false</UseBinaryProjectReferences>
   </PropertyGroup>
 
   <ItemGroup>
@@ -137,15 +138,67 @@
 
   <ItemGroup>
     <PackageReference Include="Imgui.Forms" Version="1.5.13" />
+    <PackageReference Include="Serilog" Version="4.2.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseBinaryProjectReferences)' != 'true'">
     <ProjectReference Include="..\..\lib\Konnect.Contract\Konnect.Contract.csproj" />
     <ProjectReference Include="..\..\lib\Konnect\Konnect.csproj" />
     <ProjectReference Include="..\..\lib\Kryptography.Contract\Kryptography.Contract.csproj" />
     <ProjectReference Include="..\..\lib\Kryptography\Kryptography.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseBinaryProjectReferences)' == 'true'">
+    <Reference Include="Kaligraphy.Contract">
+      <HintPath>..\..\..\dist\Release\net8.0\Kaligraphy.Contract.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Kaligraphy">
+      <HintPath>..\..\..\dist\Release\net8.0\Kaligraphy.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Kanvas.Contract">
+      <HintPath>..\..\..\dist\Release\net8.0\Kanvas.Contract.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Kanvas">
+      <HintPath>..\..\..\dist\Release\net8.0\Kanvas.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Komponent.Contract">
+      <HintPath>..\..\..\dist\Release\net8.0\Komponent.Contract.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Komponent">
+      <HintPath>..\..\..\dist\Release\net8.0\Komponent.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Kompression.Contract">
+      <HintPath>..\..\..\dist\Release\net8.0\Kompression.Contract.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Kompression">
+      <HintPath>..\..\..\dist\Release\net8.0\Kompression.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Konnect.Contract">
+      <HintPath>..\..\..\dist\Release\net8.0\Konnect.Contract.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Konnect">
+      <HintPath>..\..\..\dist\Release\net8.0\Konnect.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Kryptography.Contract">
+      <HintPath>..\..\..\dist\Release\net8.0\Kryptography.Contract.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Kryptography">
+      <HintPath>..\..\..\dist\Release\net8.0\Kryptography.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
   </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

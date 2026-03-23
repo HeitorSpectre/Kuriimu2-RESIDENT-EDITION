@@ -159,7 +159,7 @@ namespace plugin_mt_framework.Images
             [0x11] = ImageFormats.Rgb888(),
 
             [0x13] = ImageFormats.Dxt1(),
-            [0x14] = ImageFormats.Dxt3(),
+            [0x14] = ImageFormats.Dxt1(),
 
             [0x17] = ImageFormats.Dxt5(),
             [0x18] = ImageFormats.Dxt5(),
@@ -171,7 +171,8 @@ namespace plugin_mt_framework.Images
 
             [0x27] = ImageFormats.Dxt5(),
 
-            [0x2A] = ImageFormats.Dxt5()
+            [0x2A] = ImageFormats.Dxt5(),
+            [0x2B] = ImageFormats.Dxt5()
         };
 
         public static readonly IDictionary<int, IColorEncoding> SwitchFormats = new Dictionary<int, IColorEncoding>
@@ -254,7 +255,8 @@ namespace plugin_mt_framework.Images
         {
             [0x21] = new MtTex_NoAlphaShader(),
 
-            [0x2A] = new MtTex_YCbCrColorShader()
+            [0x2A] = new MtTex_YCbCrColorShader(),
+            [0x2B] = new MtTex_YCbCrColorShader()
         };
 
         private static readonly IDictionary<int, IColorShader> ShadersSwitch = new Dictionary<int, IColorShader>
@@ -292,7 +294,7 @@ namespace plugin_mt_framework.Images
 
             var magic = br.ReadString(4);
             if (magic == "\0XET")
-                br.ByteOrder = ByteOrder.BigEndian;
+                return MtTexPlatform.PS3;
 
             // Read version
             file.Position = 4;
@@ -392,6 +394,58 @@ namespace plugin_mt_framework.Images
 
             return definition;
         }
+
+        public static EncodingDefinition GetEncodingDefinition(MtTexPlatform platform, int format)
+        {
+            var definition = new EncodingDefinition();
+
+            switch (platform)
+            {
+                case MtTexPlatform.N3DS:
+                    AddSingleColorEncoding(definition, CtrFormats, null, format);
+                    break;
+
+                case MtTexPlatform.Switch:
+                    AddSingleColorEncoding(definition, SwitchFormats, ShadersSwitch, format);
+                    break;
+
+                case MtTexPlatform.PS3:
+                    AddSingleColorEncoding(definition, Ps3Formats, ShadersPs3, format);
+                    break;
+
+                case MtTexPlatform.Mobile:
+                    AddSingleColorEncoding(definition, MobileFormats, null, format);
+                    break;
+
+                case MtTexPlatform.Pc:
+                    AddSingleColorEncoding(definition, PcFormats, ShadersPc, format);
+                    break;
+
+                case MtTexPlatform.Pc87:
+                    AddSingleColorEncoding(definition, Pc87Formats, null, format);
+                    break;
+
+                case MtTexPlatform.Wii:
+                    throw new InvalidOperationException("Cannot obtain encoding definition for Wii MT Tex.");
+            }
+
+            return definition;
+        }
+
+        private static void AddSingleColorEncoding(
+            EncodingDefinition definition,
+            IDictionary<int, IColorEncoding> encodings,
+            IDictionary<int, IColorShader>? shaders,
+            int format)
+        {
+            if (!encodings.TryGetValue(format, out var encoding))
+                throw new InvalidOperationException($"Unknown encoding 0x{format:X2}.");
+
+            definition.AddColorEncoding(format, encoding);
+
+            if (shaders != null && shaders.TryGetValue(format, out var shader))
+                definition.AddColorShader(format, shader);
+        }
     }
 
     enum MtTexPlatform
@@ -463,4 +517,5 @@ namespace plugin_mt_framework.Images
             return c;
         }
     }
+
 }
