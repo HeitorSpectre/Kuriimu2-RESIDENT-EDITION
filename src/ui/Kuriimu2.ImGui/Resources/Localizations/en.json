@@ -18,7 +18,7 @@
   "ImGui.FileDialog.CreateFolder.Text": "New folder name:",
 
   // Kuriimu2
-  "Application.Name": "Kuriimu2",
+  "Application.Name": "Kuriimu2 - RESIDENT EVIL EDITION",
 
   // Menu
   "Menu.File": "File",
@@ -83,6 +83,21 @@
   "Menu.Tools.Compressions.Log.Error": "Error processing file {0}.",
   "Menu.Tools.Compressions.Progress": "Process",
 
+
+  // Batch ARC Dialog
+  "Batch.Arc.Caption.Extract": "Batch Extract .arc",
+  "Batch.Arc.Caption.Reimport": "Batch Reimport .arc",
+  "Batch.Arc.Input.Placeholder": "Select the folder that contains the original .arc files...",
+  "Batch.Arc.Output.Placeholder": "Select the extraction/reimport folder...",
+  "Batch.Arc.Input.Folder": "Original .arc folder",
+  "Batch.Arc.Output.Folder": "Extracted files folder",
+  "Batch.Arc.SearchSubfolders": "Search in subfolders",
+  "Batch.Arc.Execute.Extract": "Extract .arc files",
+  "Batch.Arc.Execute.Reimport": "Reimport .arc files",
+  "Batch.Arc.Progress": "Process .arc files",
+  "Batch.Arc.Log.NoFiles": "No .arc files were found with the selected options.",
+  "Batch.Arc.Log.Process": "Processing {0}...",
+  "Batch.Arc.Log.Error": "Failed to process {0}.",
   // Image Transcoder
   "Menu.Tools.ImageTranscoder.Caption": "Image Transcoder",
   "Menu.Tools.ImageTranscoder.File": "File",

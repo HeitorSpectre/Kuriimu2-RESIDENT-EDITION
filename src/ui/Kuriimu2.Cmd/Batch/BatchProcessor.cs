@@ -38,10 +38,14 @@ namespace Kuriimu2.Cmd.Batch
             SourceFileSystemWatcher = sourceFileSystem.Watch(UPath.Root);
 
             // Collect files
+            IEnumerable<UPath> EnumerateFiles(string searchPattern) => ScanSubDirectories
+                ? sourceFileSystem.EnumerateAllFiles(UPath.Root, searchPattern)
+                : sourceFileSystem.EnumerateFiles(UPath.Root, searchPattern);
+
             IEnumerable<UPath> fileEnumeration = Array.Empty<UPath>();
-            fileEnumeration = Plugin?.FileExtensions is { Length: > 0 } 
-                ? Plugin.FileExtensions.Aggregate(fileEnumeration, (current, ext) => current.Concat(sourceFileSystem.EnumerateAllFiles(UPath.Root, ext))) 
-                : sourceFileSystem.EnumerateAllFiles(UPath.Root);
+            fileEnumeration = Plugin?.FileExtensions is { Length: > 0 }
+                ? Plugin.FileExtensions.Aggregate(fileEnumeration, (current, ext) => current.Concat(EnumerateFiles(ext)))
+                : EnumerateFiles("*");
 
             bool isManualSelection = FileManager.AllowManualSelection;
             FileManager.AllowManualSelection = false;
