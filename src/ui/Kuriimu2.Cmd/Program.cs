@@ -153,8 +153,8 @@ namespace Kuriimu2.Cmd
         private static void PrintWelcomeText(Manifest? localManifest)
         {
             Console.WriteLine(localManifest is null
-                ? "Welcome to Kuriimu2"
-                : $"Welcome to Kuriimu2 {localManifest.Version}-{localManifest.BuildNumber}");
+                ? "Welcome to Kuriimu2 - RESIDENT EVIL EDITION"
+                : $"Welcome to Kuriimu2 - RESIDENT EVIL EDITION {localManifest.Version}-{localManifest.BuildNumber}");
             Console.WriteLine();
             Console.WriteLine("Authors: onepiecefreak, IcySon55, Neobeo, and other contributors");
             Console.WriteLine("Github: https://github.com/FanTranslatorsInternational/Kuriimu2");

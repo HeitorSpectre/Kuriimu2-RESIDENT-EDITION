@@ -18,7 +18,7 @@
   "ImGui.FileDialog.CreateFolder.Text": "Nome da nova pasta:",
 
   // Kuriimu2
-  "Application.Name": "Kuriimu2",
+  "Application.Name": "Kuriimu2 - RESIDENT EVIL EDITION",
 
   // Menu
   "Menu.File": "Arquivo",
@@ -83,6 +83,21 @@
   "Menu.Tools.Compressions.Log.Error": "Erro ao processar arquivo {0}.",
   "Menu.Tools.Compressions.Progress": "Processar",
 
+
+  // Batch ARC Dialog
+  "Batch.Arc.Caption.Extract": "Extração em lote .arc",
+  "Batch.Arc.Caption.Reimport": "Reimportação em lote .arc",
+  "Batch.Arc.Input.Placeholder": "Selecione a pasta que contém os arquivos .arc originais...",
+  "Batch.Arc.Output.Placeholder": "Selecione a pasta para extração/reimportação...",
+  "Batch.Arc.Input.Folder": "Pasta dos .arc originais",
+  "Batch.Arc.Output.Folder": "Pasta dos arquivos extraídos",
+  "Batch.Arc.SearchSubfolders": "Pesquisar por subpastas",
+  "Batch.Arc.Execute.Extract": "Extrair arquivos .arc",
+  "Batch.Arc.Execute.Reimport": "Reimportar arquivos .arc",
+  "Batch.Arc.Progress": "Processar arquivos .arc",
+  "Batch.Arc.Log.NoFiles": "Nenhum arquivo .arc foi encontrado com as opções selecionadas.",
+  "Batch.Arc.Log.Process": "Processando {0}...",
+  "Batch.Arc.Log.Error": "Falha ao processar {0}.",
   // Image Transcoder
   "Menu.Tools.ImageTranscoder.Caption": "Transcodificador de Imagens",
   "Menu.Tools.ImageTranscoder.File": "Arquivo",

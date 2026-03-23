@@ -121,18 +121,13 @@ namespace Kuriimu2.ImGui.Forms
                             _ciphersButton,
                             _compressionsButton,
                             new MenuBarSplitter(),
+                            _batchExtractButton,
+                            _batchInjectButton,
+                            new MenuBarSplitter(),
                             _imageTranscoderButton,
                             _rawImageViewerButton
                         }
                     },
-                    //new MenuBarMenu{Text = LocalizationResources.MenuTools, Items =
-                    //{
-                    //    _batchExtractButton,
-                    //    _batchInjectButton,
-                    //    _textSequencerButton,
-                    //    _hashesButton,
-                    //    _rawImageViewerButton
-                    //}},
                     new MenuBarMenu
                     {
                         Text = LocalizationResources.MenuSettings, Items =
