@@ -3,4 +3,4 @@ Kuriimu2 - RESIDENT EVIL EDITION is a fork focused on Resident Evil archive and 
 
 ## Download
 You can download the latest release:<br>
-[https://github.com/FanTranslatorsInternational/Kuriimu2/releases/latest](https://github.com/HeitorSpectre/Kuriimu2-RESIDENT-EDITION/releases/tag/1.0)
+https://github.com/HeitorSpectre/Kuriimu2-RESIDENT-EDITION/releases/tag/1.0
