@@ -21,9 +21,17 @@ namespace plugin_mt_framework.Images
             Stream fileStream = await fileSystem.OpenFileAsync(filePath);
 
             var platform = await MtTexSupport.DeterminePlatform(fileStream, loadContext.DialogManager);
+            var infos = _tex.Load(fileStream, platform);
 
-            _images = _tex.Load(fileStream, platform)
-                .Select(IImageFile (x) => new ImageFile(x, ShouldLock(platform), MtTexSupport.GetEncodingDefinition(platform))).ToList();
+            _images = [];
+            foreach (var info in infos)
+            {
+                var encodingDefinition = platform == MtTexPlatform.PS3
+                    ? MtTexSupport.GetEncodingDefinition(platform, info.ImageFormat)
+                    : MtTexSupport.GetEncodingDefinition(platform);
+
+                _images.Add(new ImageFile(info, ShouldLock(platform), encodingDefinition));
+            }
         }
 
         public async Task Save(IFileSystem fileSystem, UPath savePath, SaveContext saveContext)
@@ -40,7 +48,7 @@ namespace plugin_mt_framework.Images
         private bool ShouldLock(MtTexPlatform platform)
         {
             // Lock transcoding for mobile formats, since the 3 images are linked together
-            return platform == MtTexPlatform.Mobile;
+            return platform is MtTexPlatform.Mobile or MtTexPlatform.PS3;
         }
     }
 }

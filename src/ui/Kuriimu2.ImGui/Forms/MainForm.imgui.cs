@@ -15,6 +15,7 @@ namespace Kuriimu2.ImGui.Forms
     partial class MainForm
     {
         private MenuBarButton _openButton;
+        private MenuBarButton _openPs3TexButton;
         private MenuBarButton _openWithButton;
         private MenuBarButton _saveAllButton;
 
@@ -23,6 +24,8 @@ namespace Kuriimu2.ImGui.Forms
 
         private MenuBarButton _batchExtractButton;
         private MenuBarButton _batchInjectButton;
+        private MenuBarButton _batchTexExtractButton;
+        private MenuBarButton _batchTexInjectButton;
         private MenuBarButton _textSequencerButton;
         private MenuBarButton _hashesButton;
 
@@ -52,6 +55,10 @@ namespace Kuriimu2.ImGui.Forms
                 Text = LocalizationResources.MenuFileOpen,
                 KeyAction = new(ModifierKeys.Control, Key.O, LocalizationResources.MenuFileOpenShortcut)
             };
+            _openPs3TexButton = new MenuBarButton
+            {
+                Text = "Abrir TEX PS3"
+            };
             _openWithButton = new MenuBarButton
             {
                 Text = LocalizationResources.MenuFileOpenWith,
@@ -75,6 +82,8 @@ namespace Kuriimu2.ImGui.Forms
 
             _batchExtractButton = new MenuBarButton { Text = LocalizationResources.MenuToolsBatchExtractor };
             _batchInjectButton = new MenuBarButton { Text = LocalizationResources.MenuToolsBatchInjector };
+            _batchTexExtractButton = new MenuBarButton { Text = LocalizationResources.MenuToolsBatchTexExtractor };
+            _batchTexInjectButton = new MenuBarButton { Text = LocalizationResources.MenuToolsBatchTexInjector };
             _textSequencerButton = new MenuBarButton { Text = LocalizationResources.MenuToolsTextSequenceSearcher };
             _hashesButton = new MenuBarButton { Text = LocalizationResources.MenuToolsHashes };
             _rawImageViewerButton = new MenuBarButton { Text = LocalizationResources.MenuToolsRawImageViewer };
@@ -123,6 +132,8 @@ namespace Kuriimu2.ImGui.Forms
                             new MenuBarSplitter(),
                             _batchExtractButton,
                             _batchInjectButton,
+                            _batchTexExtractButton,
+                            _batchTexInjectButton,
                             new MenuBarSplitter(),
                             _imageTranscoderButton,
                             _rawImageViewerButton

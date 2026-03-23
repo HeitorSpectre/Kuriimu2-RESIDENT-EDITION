@@ -41,6 +41,8 @@ namespace Kuriimu2.ImGui.Resources
         public static LocalizedString MenuToolsTextSequenceSearcher => LocalizedString.FromId("Menu.Tools.TextSequenceSearcher");
         public static LocalizedString MenuToolsBatchExtractor => LocalizedString.FromId("Menu.Tools.BatchExtractor");
         public static LocalizedString MenuToolsBatchInjector => LocalizedString.FromId("Menu.Tools.BatchInjector");
+        public static LocalizedString MenuToolsBatchTexExtractor => LocalizedString.FromId("Menu.Tools.BatchTexExtractor");
+        public static LocalizedString MenuToolsBatchTexInjector => LocalizedString.FromId("Menu.Tools.BatchTexInjector");
         public static LocalizedString MenuToolsHashes => LocalizedString.FromId("Menu.Tools.Hashes");
 
         // Settings Menu
@@ -95,6 +97,22 @@ namespace Kuriimu2.ImGui.Resources
         public static LocalizedString BatchArcLogNoFiles => LocalizedString.FromId("Batch.Arc.Log.NoFiles");
         public static LocalizedString BatchArcLogProcess(string filePath) => LocalizedString.FromId("Batch.Arc.Log.Process", () => filePath);
         public static LocalizedString BatchArcLogError(string filePath) => LocalizedString.FromId("Batch.Arc.Log.Error", () => filePath);
+
+        // Batch TEX Dialog
+        public static LocalizedString BatchTexCaptionExtract => LocalizedString.FromId("Batch.Tex.Caption.Extract");
+        public static LocalizedString BatchTexCaptionReimport => LocalizedString.FromId("Batch.Tex.Caption.Reimport");
+        public static LocalizedString BatchTexInputPlaceholder => LocalizedString.FromId("Batch.Tex.Input.Placeholder");
+        public static LocalizedString BatchTexOutputPlaceholder => LocalizedString.FromId("Batch.Tex.Output.Placeholder");
+        public static LocalizedString BatchTexInputFolder => LocalizedString.FromId("Batch.Tex.Input.Folder");
+        public static LocalizedString BatchTexOutputFolder => LocalizedString.FromId("Batch.Tex.Output.Folder");
+        public static LocalizedString BatchTexSearchSubfolders => LocalizedString.FromId("Batch.Tex.SearchSubfolders");
+        public static LocalizedString BatchTexDeleteImportedPngs => LocalizedString.FromId("Batch.Tex.DeleteImportedPngs");
+        public static LocalizedString BatchTexExecuteExtract => LocalizedString.FromId("Batch.Tex.Execute.Extract");
+        public static LocalizedString BatchTexExecuteReimport => LocalizedString.FromId("Batch.Tex.Execute.Reimport");
+        public static LocalizedString BatchTexProgress => LocalizedString.FromId("Batch.Tex.Progress");
+        public static LocalizedString BatchTexLogNoFiles => LocalizedString.FromId("Batch.Tex.Log.NoFiles");
+        public static LocalizedString BatchTexLogProcess(string filePath) => LocalizedString.FromId("Batch.Tex.Log.Process", () => filePath);
+        public static LocalizedString BatchTexLogError(string filePath) => LocalizedString.FromId("Batch.Tex.Log.Error", () => filePath);
 
         // Image Transcoder
         public static LocalizedString MenuToolsImageTranscoderCaption => LocalizedString.FromId("Menu.Tools.ImageTranscoder.Caption");

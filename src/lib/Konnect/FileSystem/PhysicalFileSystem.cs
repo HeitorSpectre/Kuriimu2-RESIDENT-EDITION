@@ -321,16 +321,23 @@ public class PhysicalFileSystem : FileSystem
     /// <inheritdoc />
     protected override void SetFileDataImpl(UPath savePath, Stream saveData)
     {
-        // 1. Create file at destination
-        var createdFile = File.Create(ConvertPathToInternal(savePath));
+        var destinationPath = ConvertPathToInternal(savePath);
+
+        if (File.Exists(destinationPath))
+        {
+            var attributes = File.GetAttributes(destinationPath);
+            if ((attributes & FileAttributes.ReadOnly) != 0)
+                File.SetAttributes(destinationPath, attributes & ~FileAttributes.ReadOnly);
+        }
+
+        // 1. Create file at destination and overwrite content
+        using var createdFile = new FileStream(destinationPath, FileMode.Create, FileAccess.Write, FileShare.None);
 
         // 2. Copy all content of the file data to the destination file
         var bkPos = saveData.Position;
         saveData.Position = 0;
         saveData.CopyTo(createdFile);
         saveData.Position = bkPos;
-
-        createdFile.Close();
     }
 
     // ----------------------------------------------

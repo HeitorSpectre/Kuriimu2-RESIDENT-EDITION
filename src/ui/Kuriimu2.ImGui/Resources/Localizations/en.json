@@ -47,6 +47,8 @@
   "Menu.Tools.TextSequenceSearcher": "Text Searcher",
   "Menu.Tools.BatchExtractor": "Extract All",
   "Menu.Tools.BatchInjector": "Replace All",
+  "Menu.Tools.BatchTexExtractor": "Batch TEX Extract",
+  "Menu.Tools.BatchTexInjector": "Batch TEX Reimport",
   "Menu.Tools.Hashes": "Hashes",
 
   // Settings Menu
@@ -98,6 +100,23 @@
   "Batch.Arc.Log.NoFiles": "No .arc files were found with the selected options.",
   "Batch.Arc.Log.Process": "Processing {0}...",
   "Batch.Arc.Log.Error": "Failed to process {0}.",
+
+  // Batch TEX Dialog
+  "Batch.Tex.Caption.Extract": "Batch Extract .tex",
+  "Batch.Tex.Caption.Reimport": "Batch Reimport .tex",
+  "Batch.Tex.Input.Placeholder": "Select the folder that contains the original .tex files...",
+  "Batch.Tex.Output.Placeholder": "Select the extraction/reimport folder...",
+  "Batch.Tex.Input.Folder": "Original .tex folder",
+  "Batch.Tex.Output.Folder": "Extracted images folder",
+  "Batch.Tex.SearchSubfolders": "Search in subfolders",
+  "Batch.Tex.DeleteImportedPngs": "Delete PNGs after reimport",
+  "Batch.Tex.Execute.Extract": "Extract .tex files",
+  "Batch.Tex.Execute.Reimport": "Reimport .tex files",
+  "Batch.Tex.Progress": "Process .tex files",
+  "Batch.Tex.Log.NoFiles": "No .tex files were found with the selected options.",
+  "Batch.Tex.Log.Process": "Processing {0}...",
+  "Batch.Tex.Log.Error": "Failed to process {0}.",
+
   // Image Transcoder
   "Menu.Tools.ImageTranscoder.Caption": "Image Transcoder",
   "Menu.Tools.ImageTranscoder.File": "File",
