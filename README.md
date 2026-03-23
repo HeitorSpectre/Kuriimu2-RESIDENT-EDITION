@@ -1,5 +1,5 @@
-# Kuriimu2
-Kuriimu2 is a general purpose game translation project manager and toolkit for authors of fan translations and game mods.
+# Kuriimu2 - RESIDENT EVIL EDITION
+Kuriimu2 - RESIDENT EVIL EDITION is a fork focused on Resident Evil archive and modding workflows.
 
 ## Requirements
 You need to have the .Net Core Desktop Runtime 3.1.6 installed on your system.<br>

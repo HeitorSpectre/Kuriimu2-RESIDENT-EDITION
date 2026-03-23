@@ -69,8 +69,8 @@ namespace Kuriimu2.ImGui.Forms
         private const string ManifestUrl_ = "https://raw.githubusercontent.com/FanTranslatorsInternational/Kuriimu2-ImGuiForms-Update/main/{0}/manifest.json";
         private const string ApplicationType_ = "ImGui";
 
-        private const string FormTitle_ = "Kuriimu2 {0}-{1}";
-        private const string FormTitlePlugin_ = "Kuriimu2 {0}-{1} - {2} - {3} - {4}";
+        private const string FormTitle_ = "Kuriimu2 - RESIDENT EVIL EDITION {0}-{1}";
+        private const string FormTitlePlugin_ = "Kuriimu2 - RESIDENT EVIL EDITION {0}-{1} - {2} - {3} - {4}";
 
         #endregion
 
@@ -107,6 +107,8 @@ namespace Kuriimu2.ImGui.Forms
 
             _ciphersButton.Clicked += _ciphersButton_Clicked;
             _compressionsButton.Clicked += _compressionsButton_Clicked;
+            _batchExtractButton.Clicked += _batchExtractButton_Clicked;
+            _batchInjectButton.Clicked += _batchInjectButton_Clicked;
             _imageTranscoderButton.Clicked += _imageTranscoderButton_Clicked;
             _rawImageViewerButton.Clicked += _rawImageViewerButton_Clicked;
 
@@ -196,6 +198,16 @@ namespace Kuriimu2.ImGui.Forms
 
         #region File Management
 
+
+        private async void _batchExtractButton_Clicked(object sender, EventArgs e)
+        {
+            await ShowBatchArcDialog(BatchArcOperation.Extract);
+        }
+
+        private async void _batchInjectButton_Clicked(object sender, EventArgs e)
+        {
+            await ShowBatchArcDialog(BatchArcOperation.Reimport);
+        }
         private async void _openButton_Clicked(object sender, EventArgs e)
         {
             await OpenPhysicalFile(false);
@@ -763,6 +775,12 @@ namespace Kuriimu2.ImGui.Forms
         {
             var compressionsDialog = new CompressionsDialog();
             await compressionsDialog.ShowAsync();
+        }
+
+        private async Task ShowBatchArcDialog(BatchArcOperation operation)
+        {
+            var batchArcDialog = new BatchArcDialog(operation, _pluginManager, _fileManager, _logger);
+            await batchArcDialog.ShowAsync();
         }
 
         private async Task ShowImageTranscoderDialog()

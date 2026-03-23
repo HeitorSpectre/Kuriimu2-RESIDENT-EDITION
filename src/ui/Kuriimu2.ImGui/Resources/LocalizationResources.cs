@@ -81,6 +81,21 @@ namespace Kuriimu2.ImGui.Resources
             => LocalizedString.FromId("Menu.Tools.Compressions.Log.Error", () => filePath);
         public static LocalizedString MenuToolsCompressionsProgress => LocalizedString.FromId("Menu.Tools.Compressions.Progress");
 
+        // Batch ARC Dialog
+        public static LocalizedString BatchArcCaptionExtract => LocalizedString.FromId("Batch.Arc.Caption.Extract");
+        public static LocalizedString BatchArcCaptionReimport => LocalizedString.FromId("Batch.Arc.Caption.Reimport");
+        public static LocalizedString BatchArcInputPlaceholder => LocalizedString.FromId("Batch.Arc.Input.Placeholder");
+        public static LocalizedString BatchArcOutputPlaceholder => LocalizedString.FromId("Batch.Arc.Output.Placeholder");
+        public static LocalizedString BatchArcInputFolder => LocalizedString.FromId("Batch.Arc.Input.Folder");
+        public static LocalizedString BatchArcOutputFolder => LocalizedString.FromId("Batch.Arc.Output.Folder");
+        public static LocalizedString BatchArcSearchSubfolders => LocalizedString.FromId("Batch.Arc.SearchSubfolders");
+        public static LocalizedString BatchArcExecuteExtract => LocalizedString.FromId("Batch.Arc.Execute.Extract");
+        public static LocalizedString BatchArcExecuteReimport => LocalizedString.FromId("Batch.Arc.Execute.Reimport");
+        public static LocalizedString BatchArcProgress => LocalizedString.FromId("Batch.Arc.Progress");
+        public static LocalizedString BatchArcLogNoFiles => LocalizedString.FromId("Batch.Arc.Log.NoFiles");
+        public static LocalizedString BatchArcLogProcess(string filePath) => LocalizedString.FromId("Batch.Arc.Log.Process", () => filePath);
+        public static LocalizedString BatchArcLogError(string filePath) => LocalizedString.FromId("Batch.Arc.Log.Error", () => filePath);
+
         // Image Transcoder
         public static LocalizedString MenuToolsImageTranscoderCaption => LocalizedString.FromId("Menu.Tools.ImageTranscoder.Caption");
         public static LocalizedString MenuToolsImageTranscoderFile => LocalizedString.FromId("Menu.Tools.ImageTranscoder.File");
