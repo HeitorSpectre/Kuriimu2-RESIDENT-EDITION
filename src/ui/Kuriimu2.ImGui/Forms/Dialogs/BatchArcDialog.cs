@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ImGui.Forms.Controls;
 using ImGui.Forms.Controls.Layouts;
+using ImGui.Forms.Controls.Text;
 using ImGui.Forms.Controls.Text.Editor;
 using ImGui.Forms.Modals;
 using ImGui.Forms.Modals.IO;
